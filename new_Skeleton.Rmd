@@ -1,6 +1,6 @@
 ---
-title: "Function Skeleton Design"
-author: "Yu/Yachuan"
+title: "Function Skeleton Design(need to be updated)"
+author: "Skander/Yu/Yachuan"
 date: "December 4, 2017"
 output: pdf_document
 ---
@@ -39,26 +39,22 @@ The point marked by ? is additional, which we haven't thought thoroughly about h
      * Normalize the data
      * Calculate the covariance matrix between the covariates
      * Choose the interaction terms
-     * First generation
-Encoding the solution(chromosome)
-     * It is natural in this problem. If the dataset includes C independent variables, then the length of the chromosome should be C. 1 represents that variable is included and 0 otherwise.
-2. Select starting values
-     * It is recommended to use a heuristic approach to select starting chromosome instead of random selection.
-3. Parent selection in n-th generation
+     * Generate the first generation
+         + It is recommended to use a heuristic approach to select starting chromosome instead of random selection.
+2. Parent selection in n-th generation
      * Transform objective function $f(\theta)$ to fitness function $\Phi(\theta)$
      * Selection mechanisom. Mutiple methods are provided in the website mentioned in the input part. Generation gap G is also considered.
-4. Use genetic operator, crossover and mutation to generate the n+1-th generation. 
-     * The number of individuals, P, generated should be large at first and then decrease because the convergency is very fast at the beginning. It is recommanded that $C\leq{P}\leq{2C}$.
-5. Stopping critetia:
+3. Gene selection. Use specific genetic operator to generate the n+1-th generation. 
+4. Stopping critetia:
      * Whether the number of iterations exceeds the max number.
-     * Whether the population fitness is good enough, or whether diversity of the population converges.(Design a good measure about population fitness?)
-6. Choose the best chromosome in the final generation?
+     * Whether the error(objective function value) is small enough
      
 ##Other thoughts about the function design
 
 1. Good data structure design to improve computing efficiency.
      * For example, if using partial updating(only update a proportion of the n-th generation in the n+1-th generation), the fitness value of a given chromosome may be used more than once. And if calculating the fitness value of one chromosome is complicated, it may be better to store the value. I think hashtable can solve the probelm.
-2. Can we use smart select methods to avoid colinear problem?
+2. Avoid colinear problem
+3. Utils functions
 
 #Output
 
