@@ -48,6 +48,7 @@ The point marked by ? is additional, which we haven't thought thoroughly about h
 4. Stopping critetia:
      * Whether the number of iterations exceeds the max number.
      * Whether the error(objective function value) is small enough
+     * Whether the change in error from one iteration to the next is small enough
      
 ##Other thoughts about the function design
 
