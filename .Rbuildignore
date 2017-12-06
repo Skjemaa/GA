@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^Function_skeleton_design.Rmd$
+^Function_skeleton_design.pdf$
+^new_Skeleton.Rmd$
+^new_Skeleton.pdf$
