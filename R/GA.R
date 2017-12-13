@@ -9,10 +9,17 @@
 #' @examples 
 regression <- function(y,names, indices, dataset){
   form <- noquote(paste(names[indices], collapse = "+"))
-  print(form)
+  # print(form)
   form <- paste(y, form, sep = " ~ ")
-  print(noquote(form))
-  lin.reg <- lm(noquote(form), data = dataset)
+  # print(noquote(form))
+  types <- sapply(dataset, class)
+  nb_double <- sum(types == "numeric") + sum(types == "integer")
+  if(nb_double == ncol(dataset)){
+    lin.reg <- lm(noquote(form), data = dataset)
+  }
+  else{
+    lin.reg <- glm(noquote(form), data = dataset)
+  }
   return(lin.reg)
 }
 
