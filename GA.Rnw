@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{natbib}
+\usepackage[unicode=true]{hyperref}
+\usepackage{geometry}
+\geometry{tmargin=0.5in,bmargin=1in,lmargin=0.5in,rmargin=0.5in}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathabx}
+\usepackage{amssymb}
+\usepackage{enumitem}
+
+
+\title{STAT 243 : Project}
+\author{Skander Jemaa & Rivers Jenkins & Yachuan Liu & Yu Wang}
+\date{December 14, 2017}
+
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+
+We have chosen a functional coding style. We identified 3 main parts in the implementation. The first one was the parents selection mechanism, then came the gene operator and the last one was to carry out the production of a new generation.
+
+For each part, we have designed several approaches and the arguments can be changed by the user that can provide their own functions.
+
+In order to ease up reading and debugging we designed utility functions for each step.
+
+We will present each step
+
+
+\section*{Parent Selection Mechanism}
+
+indicate the different methods : prop/prop, prop/random, random, tournament selection
+for proportionality talk about deriving a fitness function from the objective criterion.
+
+\section*{Gene operator}
+
+k-points crossover, alleles swapping, permutation chromosomes (not done), mutations, using the one hot utlity function to ease up the operations.
+
+
+
+\section*{Iterations of the genetic algorithm}
+
+\subsection*{Initialization}
+
+speak about most significant variables, interactions, random selection of covariates...
+
+\subsection*{Iterations}
+
+permutation gap, decrease of the population size, 
+
+\section*{select function}
+describe it and how parameters can be changed saying that the use of as.name allow the user to enter their own function.
+
+
+\end{document}
+
