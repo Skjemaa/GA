@@ -228,7 +228,12 @@ tournament_selection <- function(y, dataset, individuals, k = 4,
 ## with crossover
 get_indices_crossover_gm <- function(points, p1, p2, n_var){
   #' Gene operator. Performs the k points crossover from 2 parents over
-  #' n_var genes at the indices given in the vector points
+  #' n_var genes at the indices given in the vector 'points'
+  #' @param points crossover points
+  #' @param p1,p2 parents as lists with fields variables, indices, linear_model
+  #' @param n_var, the total number of covariates in the data ncol(dataset)-1
+  #' @return a list containing the vectors of indices taken into account into
+  #' each of the 2 children given by the crossover operator
   crossing_points <- c(1, points)
   ending_points <- c(points, length(n_var))
   
@@ -260,7 +265,13 @@ get_indices_crossover_gm <- function(points, p1, p2, n_var){
 ## that case in the function iterate_generations
 
 random_chromosomes_swap <- function(p1, p2, k, n_var){
-  ## sample k chromosomes and swap these chromosomes among the 2 parents
+  ## sample k locis and swap the alleles at these locis among the 2 parents
+  #' Function that executes alleles swap. It samples k indices in
+  #' range(number of genes) and swaps the alleles of the 2 parents
+  #' at these indices
+  #' @param p1,p2 the 2 parents: lists with fields (variables, indices, linear_model)
+  #' @param k number of locis to be swapped
+  #' @param n_var length of the chromosome
   one_hot_p1 <- one_hot(p1, n_var)
   one_hot_p2 <- one_hot(p2, n_var)
   
@@ -284,6 +295,15 @@ random_chromosomes_swap <- function(p1, p2, k, n_var){
 ################ Options for the 1st iteration ################
 
 get_most_significant_variables <- function(dataset, y, p_val = 0.05){
+  #' Used to get the most significant covariates by recursively eliminating
+  #' the one with a p-value > p_val. This function can be used for the 
+  #' first generation in order to decrease the number of covariates that will
+  #' be taken into account in the iterations
+  #' @param dataset the dataframe containing the data
+  #' @param y the response variable
+  #' @param p_val the threshold p-value, a covariate is kept if its p-value is
+  #' less than p_val
+  #' @return a vector containing the names of the covariates that have been kept
   removed_var <- c()
   iterate = T
   variables <- names(dataset)[names(dataset)!=y]
@@ -301,10 +321,11 @@ get_most_significant_variables <- function(dataset, y, p_val = 0.05){
       iterate = F
     }
   }
-  return(cat(variables, sep="+"))
+  return(variables)
 }
 
 get_largest_interactions <- function(dataset, y, nb.var, max = 0){
+  #' Usded to get the c
   var_dataset <- dataset[-which(names(dataset)==y)]
   correlation_matrix <- cor(var_dataset)
   
@@ -315,8 +336,23 @@ get_largest_interactions <- function(dataset, y, nb.var, max = 0){
 
 ## do the first iteration (at random, other initialization will be added)
 first_generation <- function(y, dataset, population_size, interaction = F,
-                             objective_function = "AIC", most_sig = F,
+                             most_sig = F, objective_function = "AIC",
                              normalization = F){
+  #' Performs the first iteration of the Genetic algorithm
+  #' Generates the first individuals
+  #' @param y the response variable in the dataframe 'dataset'
+  #' @param dataset the data frame containing the variables in the model
+  #' @param population_size the number of individuals to generate
+  #' @param interaction a boolean indicating if we want to take into account
+  #' terms coming from interactions, False by default
+  #' @param most_sig a boolean indicating if we want to only consider the most
+  #' significant covariates
+  #' @param normalization a boolean indicating if we want to normalize the
+  #' covariates
+  #' @return a list of individuals each a list with fields:
+  #' \item{variable}{the covariates kept in the linear model}
+  #' \item{indices}{the indices of these covariates in the data frame}
+  #' \item{linear_model}{the linear model with these covariates}
   n <- ncol(dataset)-1
   
   names <- names(dataset)[names(dataset)!=y]
@@ -333,11 +369,33 @@ first_generation <- function(y, dataset, population_size, interaction = F,
 }
 
 
+## Get a new generation from a former one
+
 iterate_generations <- function(y, dataset, individuals, objective = "AIC", 
                                 pop_size, permutation_gap = 1,
                                 selection = "prop", nb_groups = 4,
                                 gene_selection = "crossover",
                                 nb_pts = 1){
+  #' Used to perform an iteration of the Genetic Algorithm and return the
+  #' next generation from the generation 'individuals'
+  #' @param y the name of the response variable in the data frame 'dataset'
+  #' @param dataset the data frame containing the variables in the model
+  #' @param pop_size the number of individuals in the next generation
+  #' @param permutation_gap the number of individuals of the previous
+  #' generation to keep in the next one
+  #' @param selection the name of the parents selection mechanism, the user
+  #' can provide the name of his own function defining a parent selection
+  #' mechanism
+  #' @param nb_groups the number of subgroups if the tournament selection
+  #' is the parent selection mechanism
+  #' @param gene_selection the gene operator, chose between "crossover",
+  #' "random" for random locis swap or provide the name of your own function
+  #' inside quotation marks
+  #' @param nb_points the number of crossover points if gene_selection="crossover"
+  #' @return a list of pop_size new models each a list with fields
+  #' \item{variables}{the covariates kept in the model}
+  #' \item{indices}{the indices of the covariates kept in the model}
+  #' \item{linear_model}{the linear model for these covariates}
   n_var <- ncol(dataset)-1
   pop_size_last <- length(individuals)
   
