@@ -1,8 +1,12 @@
-setClass("GA",
-         representation())
-
-## perform a linear regression given y, a list of covariates and the
-## indices of the covariates to take into account
+#' Performs a linear regression given y, a list of covariates and the
+#' indices of the covariates to take into account.
+#' @param y Name of the response variable in the dataset
+#' @param names Names of the covariates in the dataset
+#' @param indices Indices of the covariates considered in the regression
+#' @param dataset Name of the dataset
+#' @return 'lm' object obtained by performing the regression with the
+#' selected covariates
+#' @examples 
 regression <- function(y,names, indices, dataset){
   form <- noquote(paste(names[indices], collapse = "+"))
   print(form)
@@ -12,17 +16,28 @@ regression <- function(y,names, indices, dataset){
   return(lin.reg)
 }
 
-## select randomly the covariates to include in the regression returns 
-##the names, indices of the covariates and the result of lm
+
+
 random_selection_regression <- function(y, names, dataset, n){
+  #' select randomly the covariates to include in a regression and returns 
+  #' the names, indices of the covariates and an 'lm' object
+  #' @param y Name of the response variable in the dataset
+  #' @param names Names of the covariates in the dataset
+  #' @param n Number of covariates to include in the regression
+  #' @return A list with :
+  #' \item{variable}{the name of the covariates selected in the regression}
+  #' \item{indices}{their indices in the original vector names}
+  #' \item{linear_model}{the 'lm' object resulting from the regression}
   indices <- sample(length(names), n)
   lin_model <- regression(y, names, indices, dataset)
   return(list("variables" = names[indices], "indices" = indices, 
               "linear_model" = lin_model))
 }
 
-
-## get the value of the objective function
+#' Get the value of the objective function
+#' @param lin.model lm object
+#' @param objective name of the objective function inside quotes
+#' @return The value of the objective function of the linear model
 get_objective_for_population <- function(lin.model, objective = "AIC"){
   return(as.name(objective)(lin.model))
 }
@@ -33,8 +48,13 @@ get_fitness_function(lin.model, fitness){
   return
 }
 
-## utility function one_hot to encode indices in a binary vector
+
 one_hot <- function(p, n_var){
+  #' utility function to encode indices in a binary vector
+  #' @param p a list like the result of random_selection_regression
+  #' @param n_var the total number of indices
+  #' @return a binary vector of length n_var with elements equal to 1 for the
+  #' indices in p$indices
   one_hot_vector <- rep(0, n_var)
   idx <- p$indices
   one_hot_vector[idx] = 1
@@ -45,6 +65,12 @@ one_hot <- function(p, n_var){
 
 
 get_fittest_ind <- function(individuals, objective = "AIC", fitness = F){
+  #' Used to get the element in a list of elements like the result of
+  #' random_selection_regression
+  #' @param individuals list with fields variables, indices, linear_model
+  #' @param objective name of the objective function to be maximized (as a string, inside quotes)
+  #' @param fitness only works with AIC, using a fitness function derived from the AIC
+  #' @return returns the element of individuals with that maximizes the objective function
   if(fitness){
     ## case where the objective function is not the fitness function
     # @TODO
@@ -59,6 +85,13 @@ get_fittest_ind <- function(individuals, objective = "AIC", fitness = F){
 
 get_k_fittest_ind <- function(individuals, objective = "AIC", k=1,
                               fitness = F){
+  #' Used to get the k elements from a list of (variables, indices, linear_model)
+  #' with the higgest objectives values
+  #' @param individuals list with fields variables, indices, linear_model
+  #' @param objective name of the objective function to be maximized (as a string, inside quotes)
+  #' @param fitness only works with AIC, using a fitness function derived from the AIC
+  #' @return returns the k elements of individuals with that have the highest objectives
+  
   if(fitness){
     ## case where the objective function is not the fitness function
     # @TODO
@@ -72,8 +105,15 @@ get_k_fittest_ind <- function(individuals, objective = "AIC", k=1,
   }
 }
 
-## probabilities of individuals in the next generation
+
 get_prob_individuals <- function(individuals, objective = "AIC"){
+  #' Used to get the probabilities of each individual in a list
+  #' of (variables, indices, linear_model) in the next generation
+  #' proportionally to the value of their objective
+  #' @param individuals list of (variables, indices, linear_model) see the
+  #' results section of random_selection_regression for more details
+  #' @param objective objective function
+  #' @return a list of probabilities
   objectives <- unlist(lapply(individuals, 
                               function(x) as.name(objective)(x$linear_model)))
   probs <- objectives / sum(objectives)
@@ -88,6 +128,12 @@ get_prob_individuals <- function(individuals, objective = "AIC"){
 
 ## chose both parents proportionally to their fitness
 chose_parents_prop <- function(individuals, objective = "AIC"){
+  #' Used to chose 2 parents proportionally to their fitness with respect
+  #' to the objective function
+  #' @param individuals list of parents of type (variables, indices, linear_model)
+  #' @param objective objective function that defines the criterion to evaluate the
+  #' fitness of each individual
+  #' @return 2 parents samples with probabilities as defined in get_prob_individuals
   probs <- get_prob_individuals(individuals, objective = "AIC")
   parents <- sample(length(individuals), 2, prob = probs)
   return(parents)
@@ -98,6 +144,11 @@ chose_parents_prop <- function(individuals, objective = "AIC"){
 ## chose one parent proportionally to their fitness
 ## second at random
 chose_parents_prop_random <- function(individuals, objective = "AIC"){
+  #' Used to chose one parent at random and the other proportionally to
+  #' their fitness with regard to their fitness function
+  #' @param individuals list of (variables, indices, linear_model) 
+  #' see random_selection_regression
+  #' @param objective objective function
   probs <- get_prob_individuals(individuals, objective = "AIC")
   parent1 <- sample(length(individuals), 1, prob = probs)
   parent2 <- sample(length(individuals), 1)
@@ -113,8 +164,13 @@ chose_parents_random <- function(individuals){
 
 ## utility for tournament selection
 ## vies k disjoint subsequences from a sequence
-split_sequence <- function(shuffled, k, n){
-  n_splits <- floor(n/k)
+split_sequence <- function(shuffled, k){
+  #'Utility function to split a sequence in k subsequences
+  #' that is used in the tournament selection
+  #' @param shuffled 1:n shuffled
+  #' @param k number of k subsequences
+  #' @return a list of k subsequences
+  n_splits <- floor(length(shuffled)/k)
   disjoint_parts <- sapply(1:n_splits, shuffled[((x-1)*7+1):(x*7)])
   if (n %% k > 0){
     disjoint_parts[[n_splits]] <- c(disjoint_parts[[n_splits]],
@@ -129,9 +185,20 @@ split_sequence <- function(shuffled, k, n){
 tournament_selection <- function(y, dataset, individuals, k = 4, 
                                  n_var, objective = "AIC"){
   
+  #' A parents selection mechanism. The tournament selection splits the parents
+  #' population in k non overlapping subgroups and takes the fittest individual
+  #' in each group then takes n-k random subgroups (n the number of parents)
+  #' and takes the fittest individual in each of these random subgroups
+  #' @param y response variable
+  #' @param dataset the dataframe containing the data
+  #' @param k the number of subsequences that should not overlap
+  #' @param n_var number of parents
+  #' @param objective the objective function
+  #' @return a list of n_var parents that are the fittest ones in each subgroup
+  
   ## shuffle the indices and split the resulting sequence
   shuffled_sample <- sample(n_var, n_var, replace = F)
-  disjoint_parts <- split_sequence(shuffled_sample, k, n_var)
+  disjoint_parts <- split_sequence(shuffled_sample, k)
   
   ## get the fittest individuals among each group
   fit_ind <- sapply(1:k, 
@@ -160,6 +227,8 @@ tournament_selection <- function(y, dataset, individuals, k = 4,
 ## get indices of the variables taken into account in the children
 ## with crossover
 get_indices_crossover_gm <- function(points, p1, p2, n_var){
+  #' Gene operator. Performs the k points crossover from 2 parents over
+  #' n_var genes at the indices given in the vector points
   crossing_points <- c(1, points)
   ending_points <- c(points, length(n_var))
   
@@ -349,10 +418,24 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
 ## nor pop_size %% 2 != 0
 ## I will add these later
 
+#' Selects covariates for regression using a genetic algorithm
+#'
+#' @param dataset The dataset in matrix form with last column being the dependent variable.
+#' @param regression The regression form to use (either lm or glm).
+#' @param criterion The objective criterion to use (default AIC).
+#' @param parent_selection The selection method for choosing parents in GA.
+#' @param gene_selection The selection method for choosing genes in GA.
+#' @param num_iter The maximum number of iterations for the algorithm
+#' @return List containing the fitted regression, the optimal objective value,
+#' and number of iterations used.
+#' @examples
+#'
+
 select <- function(y, dataset, n_iter = 200, pop_size = 20, objective = "AIC",
                    interaction = F, most_sig = F, normalization = F, 
                    selection = "prop", nb_groups = 4, permutation = 1,
                    gene_selection = "crossover", nb_pts = 1, decay = "unif"){
+  
   
   n <- ncol(dataset)-1
   
