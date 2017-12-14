@@ -197,15 +197,14 @@ chose_parents_random <- function(individuals){
 #' @param shuffled 1:n shuffled
 #' @param k number of k subsequences
 #' @return a list of k subsequences
-lit_sequence <- function(shuffled, k){
+split_sequence <- function(shuffled, k){
   ## utility for tournament selection
   ## vies k disjoint subsequences from a sequence
-  sp
-  n_splits <- floor(length(shuffled)/k)
-  disjoint_parts <- sapply(1:n_splits, shuffled[((x-1)*7+1):(x*7)])
-  if (n %% k > 0){
-    disjoint_parts[[n_splits]] <- c(disjoint_parts[[n_splits]],
-                                    shuffled[(n_splits*k+1):n])
+  l_splits <- floor(length(shuffled)/k)
+  disjoint_parts <- lapply(1:k, function (x) shuffled[((x-1)*l_splits+1):(x*l_splits)])
+  if (length(shuffled) %% k > 0){
+    disjoint_parts[[k]] <- c(disjoint_parts[[k]],
+                             shuffled[(l_splits*k+1):length(shuffled)])
   }
   return(disjoint_parts)
 }
@@ -233,18 +232,16 @@ tournament_selection <- function(y, dataset, individuals, k = 4,
   disjoint_parts <- split_sequence(shuffled_sample, k)
   
   ## get the fittest individuals among each group
-  fit_ind <- sapply(1:k, 
+  fit_ind <- lapply(1:k, 
                     function(x) get_fittest_ind(individuals[disjoint_parts[[x]]],
                                                 objective = objective))
-  
   pop_size = length(individuals)
-  random_groups <- sapply(1:(pop_size-k), 
+  random_groups <- lapply(1:(pop_size-k), 
                           function(x) sample(1:pop_size, floor(pop_size/3)))
   
-  fit_ind_rdm <- sapply(1:length(random_groups),
+  fit_ind_rdm <- lapply(1:length(random_groups),
                         function(x) get_fittest_ind(individuals[random_groups[[x]]], 
                                                     objective = objective))
-  
   fit_ind <- c(fit_ind, fit_ind_rdm)
   
   ## returns a list of parents for the next generation
@@ -410,15 +407,15 @@ first_generation <- function(y, dataset, population_size, interaction = F,
 #' \item{indices}{the indices of the covariates kept in the model}
 #' \item{linear_model}{the linear model for these covariates}
 update_generations <- function(y, dataset, individuals, objective, 
-                              pop_size, generation_gap,
-                              parent_selection, nb_groups,
-                              gene_selection,
-                              nb_pts, reg_method, mu){
+                               pop_size, generation_gap,
+                               parent_selection, nb_groups,
+                               gene_selection,
+                               nb_pts, reg_method, mu){
   n_var <- ncol(dataset) - 1
   names <- names(dataset)[which(names(dataset)!=y)]
   
   k_prev_gen <- get_k_fittest_ind(individuals, objective,
-                                  k = (1 - generation_gap) * pop_size)
+                                  k = floor((1 - generation_gap) * pop_size))
   
   ## parents selection
   
@@ -426,6 +423,7 @@ update_generations <- function(y, dataset, individuals, objective,
     parents <- tournament_selection(y, dataset, individuals, 
                                     k = nb_groups, n_var,
                                     objective = objective)
+    #print(parents)
   }
   
   if(parent_selection == "prop"){
@@ -434,6 +432,7 @@ update_generations <- function(y, dataset, individuals, objective,
                                                          objective))
     parents_idx <- unlist(parents_idx)
     parents <- individuals[parents_idx]
+    print(parents)
   }
   
   if(parent_selection == "prop_random"){
@@ -452,7 +451,7 @@ update_generations <- function(y, dataset, individuals, objective,
   }
   
   ## gene selection
-  chld_idx <- lapply(1:pop_size, function(x) 
+  chld_idx <- lapply(1:(length(parents)/2), function(x) 
     gene_selection(order(sample(1:n_var, nb_pts)), 
                    parents[[(2*x-1)]],
                    parents[[(2*x)]], 5, n_var, mu))
