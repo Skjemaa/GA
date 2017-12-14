@@ -42,7 +42,26 @@
 #' @examples
 #' select("mpg", mtcars)
 #' select("crim", Boston)
-#'
+#' @examples
+#' simulation <- function(c, n, beta_0, beta, sigma){
+#'  c: number of variables c = 10
+#'  n: total number of observations
+#'  X <- matrix(rep(round(runif(c, min = 1, max = 10)),n) + rnorm(c*n, mean = 0, sd = 0.2),
+#'              nrow = n, byrow = T)
+#'  X_names <- paste0("X", 1:c)
+#'  X_data <- as.data.frame(X)
+#'  colnames(X_data) <- X_names
+#'  Y <- rowSums(t(beta*t(X))) + beta_0 + rnorm(n, mean = 0, sd = sigma)
+#'  return(cbind(X_data, Y))
+#'  }
+#'  test_data <- simulation(10, 100, 1,sample(c(round(runif(10/2, min = 2, max = 10)), rep(0,5)), replace = F), 1)
+#'  
+#'  select(names(test_data)[length(names(test_data))], test_data, reg_method="lm", n_iter =200, pop_size = 20, objective = "AIC",
+#'         interaction = F, most_sig = F, parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
+#'         gene_selection = NULL, gene_operator = "crossover", nb_pts = 1, mu = 0.3, err = 1e-6)
+
+
+
 
 select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, 
                    objective = "AIC", interaction = F, most_sig = F, 
