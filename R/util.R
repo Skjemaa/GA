@@ -42,3 +42,9 @@ get_prob_individuals <- function(individuals, objective = "AIC"){
   probs <- objectives / sum(objectives)
   return(probs)
 }
+                              
+mutation <- function(offspring, mu){
+  prob_mutation <- runif(length(offspring),0,1)
+  offspring[which(prob_mutation < mu)] <- abs(offspring[which(prob_mutation < mu)] - 1)
+  return(offspring)
+}
