@@ -1,46 +1,120 @@
-####################### Genetic operators ########################
+######################### Iterations ##########################
 
-#' Genetic operator: 1. Performs the k points crossover from 2 parents over
-#' n_var genes at the indices given in the vector 'points'
-#' 2. Sample k locis and swap the alleles at these locis among the 2 parents.
-#' 3. Gene mutation at a specific rate
-#' @param points crossover points
-#' @param p1,p2 the 2 parents: lists with fields (variables, indices, linear_model)
-#' @param k number of locis to be swapped
-#' @param n_var length of the chromosome
-gene_selection <- function(points, p1, p2, k, n_var, mu){
-  #Crossover
-  crossing_points <- c(1, points)
-  ending_points <- c(points, n_var)
+## do the first iteration (at random, other initialization will be added)
+#' Performs the first iteration of the Genetic algorithm
+#' Generates the first individuals
+#' @title first_generation
+#' @param y the response variable in the dataframe 'dataset'
+#' @param dataset the data frame containing the variables in the model
+#' @param population_size the number of individuals to generate
+#' @param interaction a boolean indicating if we want to take into account
+#' terms coming from interactions, False by default
+#' @param most_sig a boolean indicating if we want to only consider the most
+#' significant covariates
+#' @param objective_function The objective criterion to use (default AIC).
+#' @param reg_method regression method
+#' @return a list of individuals each a list with fields:
+#' \item{variable}{the covariates kept in the linear model}
+#' \item{indices}{the indices of these covariates in the data frame}
+#' \item{linear_model}{the linear model with these covariates}
+first_generation <- function(y, dataset, population_size, interaction = F,
+                             most_sig = F, objective_function = "AIC",
+                             reg_method){
+  if(interaction == T){
+    ## add the interaction terms
+  }
+  if(most_sig == T) {
+    names <- get_most_significant_variables(dataset, y)
+  } else {
+    names <- names(dataset)[names(dataset)!=y]
+  }
+  n <- length(names)
+  n_var <- sample(1:n, population_size, replace = T)
+  individuals <- lapply(n_var, function(x) random_selection_regression(y, names, dataset, x, reg_method))
+  return(individuals)
+}
+
+
+## Get a new generation from a former one
+#' Used to perform an iteration of the Genetic Algorithm and return the
+#' next generation from the generation 'individuals'
+#' @param y the name of the response variable in the data frame 'dataset'
+#' @param dataset the data frame containing the variables in the model
+#' @param pop_size the number of individuals in the next generation
+#' @param generation_gap the proportion of individuals to bereplaced
+#' generation to keep in the next one
+#' @param selection the name of the parents selection mechanism, the user
+#' can provide the name of his own function defining a parent selection
+#' mechanism
+#' @param nb_groups the number of subgroups if the tournament selection
+#' is the parent selection mechanism
+#' @param gene_selection the gene operator, chose between "crossover",
+#' "random" for random locis swap or provide the name of your own function
+#' inside quotation marks
+#' @param nb_points the number of crossover points if gene_selection="crossover"
+#' @return a list of pop_size new models each a list with fields
+#' \item{variables}{the covariates kept in the model}
+#' \item{indices}{the indices of the covariates kept in the model}
+#' \item{linear_model}{the linear model for these covariates}
+update_generations <- function(y, dataset, individuals, objective, 
+                               pop_size, generation_gap,
+                               parent_selection, nb_groups,
+                               gene_selection,
+                               nb_pts, reg_method, mu){
+  n_var <- ncol(dataset) - 1
+  names <- names(dataset)[which(names(dataset)!=y)]
   
-  from_p1_idx <- unlist(lapply(seq(1, length(crossing_points), by = 2), 
-                               function(i) crossing_points[i]:ending_points[i]))
-  from_p2_idx <- seq(1, n_var)[-from_p1_idx]
+  k_prev_gen <- get_k_fittest_ind(individuals, objective,
+                                  k = floor((1 - generation_gap) * pop_size))
   
-  one_hot_p1 <- one_hot(p1, n_var)
-  one_hot_p2 <- one_hot(p2, n_var)
+  ## parents selection
   
-  child1_var <- rep(0, n_var)
-  child2_var <- rep(0, n_var)
+  if(parent_selection == "tournament"){
+    parents <- tournament_selection(y, dataset, individuals, 
+                                    k = nb_groups, n_var,
+                                    objective = objective)
+    #print(parents)
+  }
   
-  child1_var[from_p1_idx] <- one_hot_p1[from_p1_idx]
-  child1_var[from_p2_idx] <- one_hot_p2[from_p2_idx]
+  if(parent_selection == "prop"){
+    parents_idx <- lapply(1:pop_size,
+                          function(x) chose_parents_prop(individuals,
+                                                         objective))
+    parents_idx <- unlist(parents_idx)
+    parents <- individuals[parents_idx]
+    print(parents)
+  }
   
-  child2_var[from_p1_idx] <- one_hot_p2[from_p1_idx]
-  child2_var[from_p2_idx] <- one_hot_p1[from_p2_idx]
+  if(parent_selection == "prop_random"){
+    parents_idx <- lapply(1:pop_size,
+                          function(x) chose_parents_prop_random (individuals,
+                                                                 objective))
+    parents_idx <- unlist(parents_idx)
+    parents <- individuals[parents_idx]
+  }
   
-  #Swap
-  swapping_idx <- sample(1:n_var, size = k, replace = F)
-  swapped_from_p1 <- one_hot_p1[swapping_idx]
+  if(parent_selection == "random"){
+    parents_idx <- lapply(1:pop_size,
+                          function(x) chose_parents_random (individuals))
+    parents_idx <- unlist(parents_idx)
+    parents <- individuals[parents_idx]
+  }
   
-  child1_var[swapping_idx] <- one_hot_p2[swapping_idx]
-  child2_var[swapping_idx] <- swapped_from_p1
+  ## gene selection
+  chld_idx <- lapply(1:(length(parents)/2), function(x) 
+    gene_selection(order(sample(1:n_var, nb_pts)), 
+                   parents[[(2*x-1)]],
+                   parents[[(2*x)]], 5, n_var, mu))
   
-  child1_var <- mutation(child1_var, mu)
-  child2_var <- mutation(child1_var, mu)
+  chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
+                                                    x$child_1, dataset, reg_method))
+  chld_2 <- lapply(chld_idx, function(x) regression(y, names, 
+                                                    x$child_2, dataset, reg_method))
+  children <- c(chld_1, chld_2)
   
-  child1_idx <- which(child1_var == 1)
-  child2_idx <- which(child2_var == 1)
-  
-  return(list("child_1" = child1_idx, "child_2" = child2_idx))
+  ## here we only keep the (new gener pop size - nb_parents_kept) children 
+  ## with the best fitness
+  nb_child_kept = generation_gap * pop_size
+  child_kept <- get_k_fittest_ind(children, objective, k = nb_child_kept)
+  return(c(k_prev_gen, child_kept))
 }
