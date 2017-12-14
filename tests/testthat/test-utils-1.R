@@ -6,6 +6,7 @@
 library(MASS)
 # Boston
 ###########
+context("Utility function tests")
 # test for regression()
 regression1 <- regression("crim", c("zn", "indus", "chas", "nox",
                      "rm","age","dis","rad","tax",
