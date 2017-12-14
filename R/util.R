@@ -9,6 +9,42 @@ get_objective_for_population <- function(individuals, objective = "AIC"){
   return(obj)
 }
 
+                
+################ Options for the 1st iteration ################
+
+#' Used to get the most significant covariates by recursively eliminating
+#' the one with a p-value > p_val. This function can be used for the 
+#' first generation in order to decrease the number of covariates that will
+#' be taken into account in the iterations
+#' @title get_most_significant_variables
+#' @param dataset the dataframe containing the data
+#' @param y the response variable
+#' @param p_val the threshold p-value, a covariate is kept if its p-value is
+#' less than p_val
+#' @return a vector containing the names of the covariates that have been kept
+get_most_significant_variables <- function(dataset, y, p_val = 0.05){
+  removed_var <- c()
+  iterate = T
+  variables <- names(dataset)[names(dataset)!=y]
+  while(iterate == T){
+    formula <- paste(variables, sep="+")
+    formula <- paste(y, formula, sep = "~")
+    summary_lm <- summary(lm(noquote(formula), dataset))
+    
+    if (max(summary_lm$coefficients[,4]) > p_val){
+      removed <- names(which.max(summary_lm$coefficients[,4]))
+      removed_var <- c(removed_var, removed)
+      variables <- variables[variables != removed]
+    }
+    
+    if (max(summary_lm$coefficients[,4]) < p_val){
+      iterate = F
+    }
+  }
+  return(variables)
+}
+                
+                
 #' Used to get the largest interaction terms.
 #' @title get_largest_interactions
 #' @param dataset the dataframe containing the data
