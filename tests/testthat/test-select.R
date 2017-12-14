@@ -34,12 +34,12 @@ test_that("Check that in some case, maximum number of iterations is useful",{
   expect_true(result1$iterations ==20)
 })
 
-test_that("With different mechanism, out algorithm converges to different result",{
+test_that("With different mechanism, our algorithm can converge to same result",{
   result11 <- select(y="crim", dataset=Boston, parent_selection = "prop")
   result12 <- select(y="crim", dataset=Boston, parent_selection = "random")
   result13 <- select(y="crim", dataset=Boston, parent_selection = "prop_random")
   result14 <- select(y="crim", dataset=Boston, parent_selection = "tournament")
 
-  expect_false(result12$objective == result11$objective)
+  expect_true(result12$objective == result11$objective)
 })
 

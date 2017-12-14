@@ -12,9 +12,9 @@ regression1 <- regression("crim", c("zn", "indus", "chas", "nox",
                      "ptratio","black", "lstat", "medv"),c(1:3), Boston,"glm")
 
 test_that(" Select the right variables to do regression", {
-  expect_equal(names(regression1$variables)[-1],c("zn", "indus", "chas", "nox",
+  expect_equal(regression1$variables[-1],c("zn", "indus", "chas", "nox",
                                       "rm","age","dis","rad","tax",
-                                      "ptratio","black", "lstat", "medv")[c(1:3)])
+                                      "ptratio","black", "lstat", "medv")[c(2:3)])
 })
 
 ###########
@@ -22,7 +22,7 @@ test_that(" Select the right variables to do regression", {
 test_that("correct encoding of chromosomes", {
   list <- random_selection_regression("crim", c("zn", "indus", "chas", "nox",
                                      "rm","age","dis","rad","tax",
-                                     "ptratio","black", "lstat", "medv"), Boston, 5)
+                                     "ptratio","black", "lstat", "medv"), Boston, 5, "glm")
   n <- length(c("zn", "indus", "chas", "nox",
                 "rm","age","dis","rad","tax",
                 "ptratio","black", "lstat", "medv"))
