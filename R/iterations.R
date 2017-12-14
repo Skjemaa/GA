@@ -111,7 +111,7 @@ update_generations <- function(y, dataset, individuals, objective,
   
   ## here we only keep the (new gener pop size - nb_parents_kept) children 
   ## with the best fitness
-  nb_child_kept = generation_gap * pop_size
+  nb_child_kept = round(generation_gap * pop_size)
   child_kept <- get_k_fittest_ind(children, objective, k = nb_child_kept)
   return(c(k_prev_gen, child_kept))
 }
