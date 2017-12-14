@@ -93,6 +93,7 @@ get_prob_individuals <- function(individuals, objective = "AIC"){
   
   objectives <- unlist(lapply(individuals, 
                               function(x) - eval(as.name(objective))(x$linear_model)))
+  objectives[objectives<0] <- 0                           
   probs <- objectives / sum(objectives)
   return(probs)
 }
