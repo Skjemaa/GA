@@ -133,6 +133,7 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   iter <- as.list(iter)
   names(iter) <- "iterations"
   objective_value <- as.list(-max(objectives))
+  names(objective_value) <- "objective"
   return(c(ind[which.max(objectives)], iter, objective_value))
 }
 
