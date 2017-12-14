@@ -1,6 +1,5 @@
 ######################### Iterations ##########################
-
-## do the first iteration (at random, other initialization will be added)
+## do the first iteration or with the most significant variables
 #' Performs the first iteration of the Genetic algorithm
 #' Generates the first individuals
 #' @title first_generation
@@ -20,11 +19,10 @@
 first_generation <- function(y, dataset, population_size, interaction = F,
                              most_sig = F, objective_function = "AIC",
                              reg_method){
-  if(interaction == T){
-    ## add the interaction terms
-  }
+
   if(most_sig == T) {
     names <- get_most_significant_variables(dataset, y)
+    dataset <- dataset[c(y, names)]
   } else {
     names <- names(dataset)[names(dataset)!=y]
   }
