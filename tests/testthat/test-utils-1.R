@@ -6,13 +6,13 @@
 library(MASS)
 # Boston
 ###########
-# test for regression() 
+# test for regression()
 regression1 <- regression("crim", c("zn", "indus", "chas", "nox",
                      "rm","age","dis","rad","tax",
                      "ptratio","black", "lstat", "medv"),c(1:3), Boston,"glm")
 
 test_that(" Select the right variables to do regression", {
-  expect_equal(names(regression1$coefficients)[-1],c("zn", "indus", "chas", "nox",
+  expect_equal(names(regression1$variables)[-1],c("zn", "indus", "chas", "nox",
                                       "rm","age","dis","rad","tax",
                                       "ptratio","black", "lstat", "medv")[c(1:3)])
 })
@@ -86,7 +86,7 @@ test_that(" Parents generated from different methods are different",{
 # test for tournament_selection()
 test_that("Output is a list",{
   init4 <- first_generation("crim", Boston, reg_method = NULL)
-  expect_equal(class(tournament_selection("crim", Boston, init4, k = 4, 
+  expect_equal(class(tournament_selection("crim", Boston, init4, k = 4,
                                            6, objective = "AIC")),"list")
 })
 

@@ -31,7 +31,7 @@ test_that("Check that in some case, maximum number of iterations is useful",{
   result1 <-select(y="crim", dataset=Boston, reg_method = NULL, n_iter = 20, objective = "AIC",
                   interaction = F, most_sig = F, parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
                   gene_selection = NULL, nb_pts = 1, mu = 0.3, err = 1e-6)
-  expect_true(result1$count ==20)
+  expect_true(result1$iterations ==20)
 })
 
 test_that("With different mechanism, out algorithm converges to different result",{
@@ -40,8 +40,6 @@ test_that("With different mechanism, out algorithm converges to different result
   result13 <- select(y="crim", dataset=Boston, parent_selection = "prop_random")
   result14 <- select(y="crim", dataset=Boston, parent_selection = "tournament")
 
-  expect_false(result12$model == result11$model)
-  print(result11$model)
-  print(result12$model)
+  expect_false(result12$objective == result11$objective)
 })
 
