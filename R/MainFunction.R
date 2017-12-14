@@ -3,9 +3,8 @@
 #' @title Genetic Algorithm for Model Selection
 #' @export
 #' @description This is main call function to run package GA.  This package is comprised of
-#' a main execution file (\code{select.R}) and a R file comtaining all utilities functions
-#' for execution (\code{utilities.R}).  The user can enter enter a dependent variable and  a
-#' dataset to execute this function.
+#' a main execution file (\code{select.R}) and other R files comtaining the utilities functions
+#' called for execution.  The user can enter enter a dependent variable and  a dataset to execute this function.
 #' @usage select(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, objective = "AIC",
 #' interaction = F, most_sig = F, parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
 #' gene_selection = "crossover", nb_pts = 1, mu = 0.3, err = 1e-6)
