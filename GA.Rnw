@@ -64,8 +64,31 @@ In each iteration of the algorithm we select new parents from the current genera
 
 After the population is whittled down to size, the parents are selected, and a new generation is created.
 
-\section*{select function}
-describe it and how parameters can be changed saying that the use of as.name allow the user to enter their own function.
+\section*{Select function}
+Our main function in our package is select() which has many parameters that can be modified by the user to obtain optimal performance from the algorithm. The three required parameters are the dependent variable y, the dataset of covariates with the last column corresponding to y, and the regression model (either "lm" or "glm"). These are required for any call to select.
+
+The optional parameters are detailed below.
+\begin{enumerate}
+\item n\_iter: the maximum number of iterations for the algorithm to run
+\item pop\_size: the initial population size
+\item objective: the objective criteria to use (default is "AIC")
+\item interaction (logical): Whether to add the interaction terms to the independent variables.
+
+\item most\_sig (logical): Whether to use the most significant variables inside the first\_generation function.
+
+\item parent\_selection (character): The mechanism to select parents. Selection mechanisms are "prop","prop\_random" or "tournament".
+
+\item nb\_groups (int): The number of groups chosen to do using the tournament selection.
+
+\item generation\_gap ( numeric): The proportion of the individuals to be replaced by offspring.
+
+\item gene\_selection (function): The additional selection method for choosing genes in GA. This can be in the form of a user-defined function which takes in two parents and outputs two children.
+
+\item nb\_pts (int): The number of points that used in crossover
+
+\item mu (numeric): The mutation rate
+\end{enumerate}
+
 
 
 \end{document}
