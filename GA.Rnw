@@ -16,6 +16,7 @@
 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
@@ -27,13 +28,17 @@ For each part, we have designed several approaches and the arguments can be chan
 
 In order to ease up reading and debugging we designed utility functions for each step.
 
-We will present each step
+We will present each step of the genetic algorithm below.
 
 
 \section*{Parent Selection Mechanism}
-
-indicate the different methods : prop/prop, prop/random, random, tournament selection
-for proportionality talk about deriving a fitness function from the objective criterion.
+To create each successive generation in the genetic algorithm, we have to select parents from the previous generation to be paired off. After two parents are paired off, they will create two children according the the gene selection mechanisms detailed in a later section. In order to select parents for each generation, there are a variety of methods available to us. We chose to implement the following four methods of parent selection.
+\begin{enumerate}
+\item Random: This selection mechanism is the simplest. We randomly choose two parents from the population to pair off.
+\item Proportional: This selection mechanism is more discriminating in picking parents. For each individual in the current generation, the fitness or objective function is calculated. We then divide this value by the sum of the objective values for all the individuals in that generation to get the probability of selecting an individual to be a parent. This allows the the algorithm to pick two parents proportionally to their fitness values. Both parents are picked in this manner.
+\item Proportional/Random: This method is a hybrid of the previous two methods. One parent is selected according to the proportional method described above, and one parent is selected uniformly randomly.
+\item Tournament: This selection mechanism groups the individuals of the current generation in groups of size k, and then selects parents based on the best fitness within each of these groups.
+\end{enumerate}
 
 \section*{Gene operator}
 
@@ -49,7 +54,7 @@ speak about most significant variables, interactions, random selection of covari
 
 \subsection*{Iterations}
 
-permutation gap, decrease of the population size, 
+permutation gap, decrease of the population size,
 
 \section*{select function}
 describe it and how parameters can be changed saying that the use of as.name allow the user to enter their own function.
