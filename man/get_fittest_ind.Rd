@@ -4,7 +4,7 @@
 \alias{get_fittest_ind}
 \title{get_fittest_ind}
 \usage{
-get_fittest_ind(individuals, objective = "AIC", fitness = F)
+get_fittest_ind(individuals, objective = "AIC")
 }
 \arguments{
 \item{individuals}{list with fields variables, indices, linear_model}

@@ -19,6 +19,8 @@ gene_selection(method, points, p1, p2, k, n_var, mu)
 \item{k}{number of locis to be swapped}
 
 \item{n_var}{length of the chromosome}
+
+\item{mu}{mutation rate}
 }
 \description{
 Genetic operator: 1. Performs the k points crossover from 2 parents over
