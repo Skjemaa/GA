@@ -7,10 +7,12 @@
 next generation from the generation 'individuals'}
 \usage{
 update_generations(y, dataset, individuals, objective, pop_size, generation_gap,
-  parent_selection, nb_groups, gene_selection, nb_pts, reg_method, mu)
+  parent_selection, nb_groups, gene_selection, gene_operator, nb_pts,
+  reg_method, mu)
 
 update_generations(y, dataset, individuals, objective, pop_size, generation_gap,
-  parent_selection, nb_groups, gene_selection, nb_pts, reg_method, mu)
+  parent_selection, nb_groups, gene_selection, gene_operator, nb_pts,
+  reg_method, mu)
 }
 \arguments{
 \item{y}{the name of the response variable in the data frame 'dataset'}

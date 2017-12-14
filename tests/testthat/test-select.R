@@ -9,11 +9,11 @@ test_that("Input errors", {
                'argument "y" is missing, with no default')
 
   expect_error(select(y="crim"),
-               'argument "dataset" is missing, with no default')  
-  
+               'argument "dataset" is missing, with no default')
+
   expect_error(select(y="crim", dataset= as.matrix(Boston)),
                "The dataset is not a data frame.")
-  
+
 
 })
 
@@ -39,9 +39,9 @@ test_that("With different mechanism, out algorithm converges to different result
   result12 <- select(y="crim", dataset=Boston, parent_selection = "random")
   result13 <- select(y="crim", dataset=Boston, parent_selection = "prop_random")
   result14 <- select(y="crim", dataset=Boston, parent_selection = "tournament")
-  
+
   expect_false(result12$ == result11$)
   print(result11$model)
   print(result12$model)
 })
- 
+

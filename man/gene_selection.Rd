@@ -9,13 +9,15 @@ n_var genes at the indices given in the vector 'points'
 2. Sample k locis and swap the alleles at these locis among the 2 parents.
 3. Gene mutation at a specific rate}
 \usage{
-gene_selection(points, p1, p2, k, n_var, mu)
+gene_selection(method, points, p1, p2, k, n_var, mu)
 
-gene_selection(points, p1, p2, k, n_var, mu)
+gene_selection(method, points, p1, p2, k, n_var, mu)
 
-gene_selection(points, p1, p2, k, n_var, mu)
+gene_selection(method, points, p1, p2, k, n_var, mu)
 }
 \arguments{
+\item{method}{a string inside quotation marks either "crossover", "random"}
+
 \item{points}{crossover points}
 
 \item{p1, p2}{the 2 parents: lists with fields (variables, indices, linear_model)}
