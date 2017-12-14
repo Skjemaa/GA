@@ -45,15 +45,33 @@
 #' select("crim", Boston)
 #'
 
-select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n,
-                   objective = "AIC", interaction = F, most_sig = F,
+select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, 
+                   objective = "AIC", interaction = F, most_sig = F, 
                    parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
-                   gene_selection = NULL, gene_operator = "crossover",
+                   gene_selection = NULL, gene_operator = "crossover", 
                    nb_pts = 1, mu = 0.3, err = 1e-6){
+  
+  if(interaction == T){
+    l <- get_largest_interactions(y, dataset)
+    s <- sapply(l, function(x) strsplit(x, split = ":"))
+    interactions <- dataset
+    for(i in 1:length(s)){
+      col_1 <- dataset[which(names(dataset)==s[[i]][1])]
+      col_2 <- dataset[which(names(dataset)==s[[i]][2])]
+      interactions <- cbind.data.frame(interactions, 
+                                       col_1/col_2)
+    }
+    names(interactions) <- c(names(dataset), l)
+    dataset <- interactions
+  }
+  
+  if(most_sig == T) {
+    names <- get_most_significant_variables(dataset, y)
+    dataset <- dataset[c(y, names)]
+  }
+  
   n <- ncol(dataset) - 1
-  first_ind <- first_generation(y, dataset, pop_size, interaction,
-                                objective_function = objective, most_sig, reg_method)
-  ind <- first_ind
+  
   # Input check
   if(is.null(dataset)) {
     stop("Dataset shouldn't be null.")
@@ -61,7 +79,8 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   if(length(which(names(dataset) == y)) == 0) {
     stop("Y can't be found in dataset.")
   }
-  if(length(which(c("prop", "random", "tournament", "prop_random") == parent_selection)) == 0) {
+  if(length(which(c("prop", "random", "tournament", 
+                    "prop_random") == parent_selection)) == 0) {
     stop("The parent selection method can only be chosen from the four in help documentation.")
   }
   if(length(which(c("crossover", "swap") == gene_operator)) == 0) {
@@ -78,6 +97,12 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   if(mu <= 0 | mu >= 1) {
     stop("The mutation rate should be in range (0,1)")
   }
+  
+  
+  first_ind <- first_generation(y, dataset, pop_size, interaction, 
+                                objective_function = objective, most_sig, reg_method)
+  ind <- first_ind
+  
   # changing the population size
   if(pop_size < n) {
     pop_sizes <- rep(pop_size, n_iter)
@@ -93,9 +118,9 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   for (i in 1:n_iter){
     iter <- iter + 1
     popsize <- pop_sizes[i]
-    ind <- update_generations(y, dataset, ind, objective, pop_size,
-                              generation_gap, parent_selection, nb_groups,
-                              gene_selection, gene_operator, nb_pts,
+    ind <- update_generations(y, dataset, ind, objective, pop_size, 
+                              generation_gap, parent_selection, nb_groups, 
+                              gene_selection, gene_operator, nb_pts, 
                               reg_method, mu)
     objectives <- unlist(get_objective_for_population(ind, objective))
     newoptim <- max(objectives)
