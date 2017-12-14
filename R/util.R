@@ -58,7 +58,7 @@ get_largest_interactions <- function(y,dataset){
   names <- names(var_dataset)
   corr_matrix <- cor(var_dataset)
   largest_int <- c()
-  for (i in 2:ncol(df)){
+  for (i in 2:ncol(var_dataset)){
     for (j in 1:(i-1)){
       if(abs(corr_matrix[i,j])> 0.75){
         largest_int <- c(largest_int, paste(names[i], names[j], sep=":"))
