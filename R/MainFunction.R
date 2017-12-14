@@ -61,7 +61,7 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   if(length(which(names(dataset) == y)) == 0) {
     stop("Y can't be found in dataset.")
   }
-  if(length(which(c("prop", "random", "tournament", "prop_random"))) == 0) {
+  if(length(which(c("prop", "random", "tournament", "prop_random") == parent_selection)) == 0) {
     stop("The parent selection method can only be chosen from the four in help documentation.")
   }
   if(length(which(c("crossover", "swap") == gene_operator)) == 0) {
@@ -99,7 +99,7 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
                               reg_method, mu)
     objectives <- unlist(get_objective_for_population(ind, objective))
     newoptim <- max(objectives)
-    if(abs(newoptim - oldoptim) < err) {
+    if(abs(newoptim - oldoptim) < err & parent_selection != "random" & i > n_iter/4) {
       break;
     }
   }
