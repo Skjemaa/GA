@@ -545,7 +545,3 @@ select <- function(y, dataset, n_iter = 200, pop_size = 20, objective = "AIC",
   return(ind[which.max(objectives)])
   
 }
-
-
-
-
