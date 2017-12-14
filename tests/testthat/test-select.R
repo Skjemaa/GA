@@ -40,7 +40,7 @@ test_that("With different mechanism, out algorithm converges to different result
   result13 <- select(y="crim", dataset=Boston, parent_selection = "prop_random")
   result14 <- select(y="crim", dataset=Boston, parent_selection = "tournament")
 
-  expect_false(result12$ == result11$)
+  expect_false(result12 == result11)
   print(result11$model)
   print(result12$model)
 })

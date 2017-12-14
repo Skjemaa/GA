@@ -20,15 +20,18 @@
 
 \maketitle
 
+\section*{GitHub}
+The package is located in Skander Jemaa's (skjemaa) github at https://github.com/Skjemaa/GA.
+
 \section*{Introduction}
 
-We have chosen a functional coding style. We identified 3 main parts in the implementation. The first one was the parents selection mechanism, then came the gene operator and the last one was to carry out the production of a new generation.
+We were asked to implement a genetic algorithm for regression for this package. We chose a functional coding style. The main function the user will interface with is the select() function which calls many utility functions also contained in the package.
 
-For each part, we have designed several approaches and the arguments can be changed by the user that can provide their own functions.
+We identified 3 main parts in the implementation of the genetic algorithm. The first one was the parents selection mechanism, then came the gene operator and the last one was to carry out the production of a new generation.
 
-In order to ease up reading and debugging we designed utility functions for each step.
+For each part, we have designed several approaches and the arguments can be changed by the user that can provide their own functions.In order to ease up reading and debugging we designed utility functions for each step.
 
-We will present each step of the genetic algorithm below.
+We will present each step of the genetic algorithm below followed by a description of the main select function which initiates the genetic algorithm.
 
 
 \section*{Parent Selection Mechanism}
