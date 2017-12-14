@@ -26,3 +26,19 @@ one_hot <- function(p, n_var){
   one_hot_vector[idx] = 1
   return(one_hot_vector)
 }
+                
+#' Used to get the probabilities of each individual in a list
+#' of (variables, indices, linear_model) in the next generation
+#' proportionally to the value of their objective
+#' @title get_prob_individuals
+#' @param individuals list of (variables, indices, linear_model) see the
+#' results section of random_selection_regression for more details
+#' @param objective objective function
+#' @return a list of probabilities that correspond to the objective value.
+get_prob_individuals <- function(individuals, objective = "AIC"){
+  
+  objectives <- unlist(lapply(individuals, 
+                              function(x) - eval(as.name(objective))(x$linear_model)))
+  probs <- objectives / sum(objectives)
+  return(probs)
+}
