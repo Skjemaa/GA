@@ -86,7 +86,7 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
   }
   
   if(gene_selection=="random"){
-    chld_idx <- lapply(range(pop_size_last), function(x) 
+    chld_idx <- lapply(range(pop_size_last/2), function(x) 
       random_chromosomes_swap(sample(1:n_var, k), parents[[(2*x-1)]],
                               parents[[(2*x)]],n_var))
     
