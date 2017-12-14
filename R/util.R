@@ -60,3 +60,5 @@ mutation <- function(offspring, mu){
   offspring[which(prob_mutation < mu)] <- abs(offspring[which(prob_mutation < mu)] - 1)
   return(offspring)
 }
+
+                              
