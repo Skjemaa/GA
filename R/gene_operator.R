@@ -9,6 +9,7 @@
 #' @param p1,p2 the 2 parents: lists with fields (variables, indices, linear_model)
 #' @param k number of locis to be swapped
 #' @param n_var length of the chromosome
+#' @param mu mutation rate
 gene_selection <- function(method, points, p1, p2, k, n_var, mu){
   if(method=="crossover"){
     crossing_points <- c(1, points)
