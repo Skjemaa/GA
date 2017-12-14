@@ -52,14 +52,20 @@ get_most_significant_variables <- function(dataset, y, p_val = 0.05){
 #' @param nb.var the threshold p-value, a covariate is kept if its p-value is
 #' less than p_val
 #' @return a vector containing the names of the covariates that have been kept
-#' ################## PLEASE EDIT THE DOCUMENTATION PART ###################### 
-get_largest_interactions <- function(dataset, y, nb.var, max = 0){
-  #' Usded to get the c
-  #' 
+
+get_largest_interactions <- function(y,dataset){
   var_dataset <- dataset[-which(names(dataset)==y)]
-  correlation_matrix <- cor(var_dataset)
-  
-  
+  names <- names(var_dataset)
+  corr_matrix <- cor(var_dataset)
+  largest_int <- c()
+  for (i in 2:ncol(df)){
+    for (j in 1:(i-1)){
+      if(abs(corr_matrix[i,j])> 0.75){
+        largest_int <- c(largest_int, paste(names[i], names[j], sep=":"))
+      }
+    }
+  }
+  return(largest_int)
 }
 
 #' utility function to encode indices in a binary vector
