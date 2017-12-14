@@ -4,5 +4,13 @@
 
 - Skander Jemaa
 - River Jenkins
-- Yu Liu
-- Yachuan
+- Yachuan Liu
+- Yu Wang
+
+## Main function : select
+
+The main function \code{select} can be used with 2 arguments:
+- the name of the response variable y
+- the name of the dataset
+example:
+
