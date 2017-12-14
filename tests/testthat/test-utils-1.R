@@ -90,10 +90,6 @@ test_that("Output is a list",{
                                            6, objective = "AIC")),"list")
 })
 
-####################### Genetic operators #####################
-mutation()
-gene_selection()
-
 
 
 
