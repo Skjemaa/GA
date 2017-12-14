@@ -9,10 +9,22 @@ get_objective_for_population <- function(individuals, objective = "AIC"){
   return(obj)
 }
 
-## get the loss
-#get_fitness_function(lin.model, fitness){
-# return
-#}
+#' Used to get the largest interaction terms.
+#' @title get_largest_interactions
+#' @param dataset the dataframe containing the data
+#' @param y the response variable
+#' @param nb.var the threshold p-value, a covariate is kept if its p-value is
+#' less than p_val
+#' @return a vector containing the names of the covariates that have been kept
+#' ################## PLEASE EDIT THE DOCUMENTATION PART ###################### 
+get_largest_interactions <- function(dataset, y, nb.var, max = 0){
+  #' Usded to get the c
+  #' 
+  var_dataset <- dataset[-which(names(dataset)==y)]
+  correlation_matrix <- cor(var_dataset)
+  
+  
+}
 
 #' utility function to encode indices in a binary vector
 #' @title one_hot
