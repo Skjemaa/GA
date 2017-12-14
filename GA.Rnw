@@ -41,9 +41,12 @@ To create each successive generation in the genetic algorithm, we have to select
 \end{enumerate}
 
 \section*{Gene operator}
-
-k-points crossover, alleles swapping, permutation chromosomes (not done), mutations, using the one hot utlity function to ease up the operations.
-
+After the parents are selected for a new generation, we must create the new children for this generation. We can do this using a variety of gene operators on the two parents. The gene operators we implemented are detailed below.
+\begin{enumerate}
+\item Crossover: This is similar to selecting which chromosome to take from each parent in human reproduction. We select a sequence of alleles (in this case binary digits) from each parent to add to the child. So if each parent has 5 alleles with one as (1,0,0,0,0) and the other as (1,1,1,1,1), we could take the first 3 alleles from parent 1, and the last two from parent 2 giving (1,0,0,1,1). These sequences do not have to be contiguous, thought they were in that example.
+\item Allele Swapping: This is similar to crossover, but instead of looking at sequences of alleles, we swap individual alleles. After the initial children are formed using crossover, we randomly pick k alleles to swap between the children. So (1,1,0,0) could become (1,1,0,1) if we pick the last allele to swap and the other child had a 1 in that position.
+\item Mutation: This is the final step in constructing the new children and is performed separately on each child. We will randomly mutate an allele according to some (usually quite small) probability. This ensures that we are not totally restricted by the alleles in the parent generation.
+\end{enumerate}
 
 
 \section*{Iterations of the genetic algorithm}
