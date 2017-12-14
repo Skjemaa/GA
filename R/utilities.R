@@ -3,22 +3,22 @@
 #' @param objective name of the objective function inside quotes
 #' @return The value of the objective function of the linear model
 get_objective_for_population <- function(individuals, objective = "AIC"){
-  obj <- lapply(individuals, 
+  obj <- lapply(individuals,
                 function(x) eval(as.name(objective))(x$linear_model))
   return(obj)
 }
 
-@TODO
-## get the loss
-get_fitness_function(lin.model, fitness){
-  return
-}
+# @TODO
+# ## get the loss
+# get_fitness_function(lin.model, fitness){
+#   return
+# }
 
 
 one_hot <- function(p, n_var){
   #' utility function to encode indices in a binary vector
- 
-  
+
+
   #' @param p a list like the result of random_selection_regression
   #' @param n_var the total number of indices
   #' @return a binary vector of length n_var with elements equal to 1 for the
@@ -37,7 +37,7 @@ get_prob_individuals <- function(individuals, objective = "AIC"){
   #' results section of random_selection_regression for more details
   #' @param objective objective function
   #' @return a list of probabilities
-  objectives <- unlist(lapply(individuals, 
+  objectives <- unlist(lapply(individuals,
                               function(x) eval(as.name(objective))(x$linear_model)))
   probs <- objectives / sum(objectives)
   return(probs)
