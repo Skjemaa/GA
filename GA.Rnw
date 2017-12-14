@@ -52,8 +52,11 @@ After the parents are selected for a new generation, we must create the new chil
 \section*{Iterations of the genetic algorithm}
 
 \subsection*{Initialization}
+In order to initialize the algorithm, we have to create the first parent generation from scratch. Since we knew that the genetic algorithm would only be applied to regressions, we also wanted to expand the tools of the user by adding an option to look at interactions between covariates. This greatly expands the pool of variables.
 
-speak about most significant variables, interactions, random selection of covariates...
+In order to accomplish the initialization of the first generation we radomly select which variables to include in the first regressions.
+
+Randomly selecting variables for the first generation gives good diversity in the first generation, but it may also mean we are far from the optimal solution and will take a long time to converge. In order to avoid this, we provide an option for the user to only consider the most significant variables in the dataset. By most significant, we mean that we only consider those variables with a p-value of less than 0.05 when run in a simple linear regression. This way we restrict the variable population at the beginning in order to get faster convergence.
 
 \subsection*{Iterations}
 
