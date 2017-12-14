@@ -55,15 +55,18 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
     l <- get_largest_interactions(y, dataset)
     s <- sapply(l, function(x) strsplit(x, split = ":"))
     interactions <- dataset
-    for(i in 1:length(s)){
-      col_1 <- dataset[which(names(dataset)==s[[i]][1])]
-      col_2 <- dataset[which(names(dataset)==s[[i]][2])]
-      interactions <- cbind.data.frame(interactions, 
-                                       col_1/col_2)
+    if(length(s)>0){
+      for(i in 1:length(s)){
+        col_1 <- dataset[which(names(dataset)==s[[i]][1])]
+        col_2 <- dataset[which(names(dataset)==s[[i]][2])]
+        interactions <- cbind.data.frame(interactions, 
+                                         col_1/col_2)
+      }
+      names(interactions) <- c(names(dataset), l)
+      dataset <- interactions
     }
-    names(interactions) <- c(names(dataset), l)
-    dataset <- interactions
-  }
+    }
+    
   
   if(most_sig == T) {
     names <- get_most_significant_variables(dataset, y)
