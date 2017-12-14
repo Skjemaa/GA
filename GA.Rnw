@@ -60,7 +60,9 @@ Randomly selecting variables for the first generation gives good diversity in th
 
 \subsection*{Iterations}
 
-permutation gap, decrease of the population size,
+In each iteration of the algorithm we select new parents from the current generation and use those to create the next generation, stopping if the algorithm seems to be converging (we see a little change in the objective value). However, we may wish to keep the best performing individuals in the current generation. We can accomplish this by imposing a permutation gap. The permutation gap will decrease the overall population each iteration by chopping off the most unfit individuals. This new population will survive to the next generation, while the worst performers are replaced by children. The permuation gap is defined in our algorithm as the proportion of individuals to kill off in each each iteration.
+
+After the population is whittled down to size, the parents are selected, and a new generation is created.
 
 \section*{select function}
 describe it and how parameters can be changed saying that the use of as.name allow the user to enter their own function.
