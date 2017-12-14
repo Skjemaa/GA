@@ -4,11 +4,11 @@
 #' @export
 #' @description This is main call function to run package GA.  This package is comprised of
 #' a main execution file (\code{select.R}) and a R file comtaining all utilities functions
-#' for execution (\code{utilities.R}).  The user can enter enter a dependent variable and  a 
-#' dataset to execute the this function.
+#' for execution (\code{utilities.R}).  The user can enter enter a dependent variable and  a
+#' dataset to execute this function.
 #' @usage select(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, objective = "AIC",
 #' interaction = F, most_sig = F, parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
-#' gene_selection = "crossover", nb_pts = 1, mu = 0.3)
+#' gene_selection = "crossover", nb_pts = 1, mu = 0.3, err = 1e-6)
 #' @details Contained in the list below are the invdividual functions that are called during the
 #' execution of the genetic algorithm.
 #' \itemize{
@@ -29,6 +29,8 @@
 #' @param gene_selection (function) The additional selection method for choosing genes in GA.
 #' @param nb_pts (int) The number of points that used in crossover
 #' @param mu (numeric) The mutation rate
+#' @param err (numeric) The convergence threshold (if the difference between last iteration and current is
+#' less than err, the algorithm stops)
 #' @return \code{select} returns a list with elements:
 #'\itemize{
 #'  \item{\code{count}}: {number of iterations until getting the selection}
@@ -39,16 +41,16 @@
 #' @examples
 #' select("mpg", mtcars)
 #' select("crim", Boston)
-#' 
+#'
 
 select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, objective = "AIC",
                    interaction = F, most_sig = F, parent_selection = "prop", nb_groups = 4, generation_gap = 0.25,
                    gene_selection = NULL, nb_pts = 1, mu = 0.3, err = 1e-6){
   n <- ncol(dataset) - 1
-  first_ind <- first_generation(y, dataset, pop_size, interaction, 
+  first_ind <- first_generation(y, dataset, pop_size, interaction,
                                 objective_function = objective, most_sig, reg_method)
   ind <- first_ind
-  
+
   # changing the population size
   if(pop_size < n) {
     pop_sizes <- rep(pop_size, n_iter)
