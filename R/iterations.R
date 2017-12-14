@@ -1,6 +1,5 @@
 ######################### Iterations ##########################
-
-## do the first iteration (at random, other initialization will be added)
+## do the first iteration or with the most significant variables
 #' Performs the first iteration of the Genetic algorithm
 #' Generates the first individuals
 #' @title first_generation
@@ -20,11 +19,10 @@
 first_generation <- function(y, dataset, population_size, interaction = F,
                              most_sig = F, objective_function = "AIC",
                              reg_method){
-  if(interaction == T){
-    ## add the interaction terms
-  }
+
   if(most_sig == T) {
     names <- get_most_significant_variables(dataset, y)
+    dataset <- dataset[c(y, names)]
   } else {
     names <- names(dataset)[names(dataset)!=y]
   }
@@ -59,7 +57,7 @@ first_generation <- function(y, dataset, population_size, interaction = F,
 update_generations <- function(y, dataset, individuals, objective, 
                                pop_size, generation_gap,
                                parent_selection, nb_groups,
-                               gene_selection,
+                               gene_selection, gene_operator,
                                nb_pts, reg_method, mu){
   n_var <- ncol(dataset) - 1
   names <- names(dataset)[which(names(dataset)!=y)]
@@ -82,7 +80,6 @@ update_generations <- function(y, dataset, individuals, objective,
                                                          objective))
     parents_idx <- unlist(parents_idx)
     parents <- individuals[parents_idx]
-    print(parents)
   }
   
   if(parent_selection == "prop_random"){
@@ -102,9 +99,9 @@ update_generations <- function(y, dataset, individuals, objective,
   
   ## gene selection
   chld_idx <- lapply(1:(length(parents)/2), function(x) 
-    gene_selection(order(sample(1:n_var, nb_pts)), 
-                   parents[[(2*x-1)]],
-                   parents[[(2*x)]], 5, n_var, mu))
+    gene_selection(gene_operator,order(sample(1:n_var, nb_pts)), 
+                   parents[[(2*x-1)]],parents[[(2*x)]], 
+                   nb_pts, n_var, mu))
   
   chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
                                                     x$child_1, dataset, reg_method))
