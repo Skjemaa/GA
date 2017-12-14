@@ -4,10 +4,11 @@
 #' @param names Names of the covariates in the dataset
 #' @param indices Indices of the covariates considered in the regression
 #' @param dataset Name of the dataset
+#' @reg_method Regression method
 #' @return 'lm' object obtained by performing the regression with the
-#' selected covariates
+#'  selected covariates
 #' @examples 
-regression <- function(y,names, indices, dataset, reg_method){
+regression <- function(y, names, indices, dataset, reg_method){
   if(length(indices)==0){
     indices <- sample(1:length(names), floor(length(names)/2))
   }
@@ -232,18 +233,16 @@ tournament_selection <- function(y, dataset, individuals, k = 4,
 
 ####################### Gene operators ########################
 
-
-#' Gene operator. Performs the k points crossover from 2 parents over
+#' Genetic operator: 1. Performs the k points crossover from 2 parents over
 #' n_var genes at the indices given in the vector 'points'
+#' 2. Sample k locis and swap the alleles at these locis among the 2 parents.
+#' 3. Gene mutation at a specific rate
 #' @param points crossover points
-#' @param p1,p2 parents as lists with fields variables, indices, linear_model
-#' @param n_var, the total number of covariates in the data ncol(dataset)-1
-#' @return a list containing the vectors of indices taken into account into
-#' each of the 2 children given by the crossover operator
-## get indices of the variables taken into account in the children
-## with crossover
-get_indices_crossover_gm <- function(points, p1, p2, n_var, mu){
-  
+#' @param p1,p2 the 2 parents: lists with fields (variables, indices, linear_model)
+#' @param k number of locis to be swapped
+#' @param n_var length of the chromosome
+gene_selection <- function(points, p1, p2, k, n_var, mu){
+  #Crossover
   crossing_points <- c(1, points)
   ending_points <- c(points, n_var)
   
@@ -263,36 +262,8 @@ get_indices_crossover_gm <- function(points, p1, p2, n_var, mu){
   child2_var[from_p1_idx] <- one_hot_p2[from_p1_idx]
   child2_var[from_p2_idx] <- one_hot_p1[from_p2_idx]
   
-  child1_var <- mutation(child1_var, mu)
-  child2_var <- mutation(child1_var, mu)
-  
-  child1_idx <- which(child1_var == 1)
-  child2_idx <- which(child2_var == 1)
-  
-  return(list("child_1" = child1_idx, "child2" = child2_idx))
-}
-
-
-
-## permutation gap : no need to implement a function for that, just include
-## that case in the function iterate_generations
-## sample k locis and swap the alleles at these locis among the 2 parents
-#' Function that executes alleles swap. It samples k indices in
-#' range(number of genes) and swaps the alleles of the 2 parents
-#' at these indices
-#' @param p1,p2 the 2 parents: lists with fields (variables, indices, linear_model)
-#' @param k number of locis to be swapped
-#' @param n_var length of the chromosome
-random_chromosomes_swap <- function(p1, p2, k, n_var, mu){
-  
-  one_hot_p1 <- one_hot(p1, n_var)
-  one_hot_p2 <- one_hot(p2, n_var)
-  
-  child1_var <- one_hot_p1
-  child2_var <- one_hot_p2
-  
-  # sample the locis that will be swapped
-  swapping_idx <- sample(n_var, k, replace = F)
+  #Swap
+  swapping_idx <- sample(1:n_var, size = k, replace = F)
   swapped_from_p1 <- one_hot_p1[swapping_idx]
   
   child1_var[swapping_idx] <- one_hot_p2[swapping_idx]
@@ -301,11 +272,10 @@ random_chromosomes_swap <- function(p1, p2, k, n_var, mu){
   child1_var <- mutation(child1_var, mu)
   child2_var <- mutation(child1_var, mu)
   
-  child1_idx <- which(child1_var==1)
-  child2_idx <- which(chidl2_idx)
+  child1_idx <- which(child1_var == 1)
+  child2_idx <- which(child2_var == 1)
   
   return(list("child_1" = child1_idx, "child_2" = child2_idx))
-  
 }
 
 ################ Options for the 1st iteration ################
@@ -407,7 +377,7 @@ first_generation <- function(y, dataset, population_size, interaction = F,
 iterate_generations <- function(y, dataset, individuals, objective, 
                                 pop_size, generation_gap,
                                 selection = "prop", nb_groups,
-                                gene_selection = "crossover",
+                                gene_selection,
                                 nb_pts = 1, reg_method, mu){
   n_var <- ncol(dataset)-1
   names <- names(dataset)[which(names(dataset)!=y)]
@@ -417,13 +387,13 @@ iterate_generations <- function(y, dataset, individuals, objective,
   
   ## parents selection
   
-  if(selection =="tournament"){
+  if(selection == "tournament"){
     parents <- tournament_selection(y, dataset, individuals, 
                                     k = nb_groups, n_var,
                                     objective = objective)
   }
   
-  if(selection =="prop"){
+  if(selection == "prop"){
     parents_idx <- lapply(1:pop_size,
                           function(x) chose_parents_prop(individuals,
                                                          objective))
@@ -431,7 +401,7 @@ iterate_generations <- function(y, dataset, individuals, objective,
     parents <- individuals[parents_idx]
   }
   
-  if(selection =="prop_random"){
+  if(selection == "prop_random"){
     parents_idx <- lapply(1:pop_size,
                           function(x) chose_parents_prop_random (individuals,
                                                                  objective))
@@ -439,7 +409,7 @@ iterate_generations <- function(y, dataset, individuals, objective,
     parents <- individuals[parents_idx]
   }
   
-  if(selection =="random"){
+  if(selection == "random"){
     parents_idx <- lapply(1:pop_size,
                           function(x) chose_parents_random (individuals))
     parents_idx <- unlist(parents_idx)
@@ -447,39 +417,23 @@ iterate_generations <- function(y, dataset, individuals, objective,
   }
   
   ## gene selection
-  
-  if(gene_selection == "crossover"){
     chld_idx <- lapply(1:pop_size, function(x) 
-      get_indices_crossover_gm(order(sample(1:n_var, nb_pts)), 
+      gene_selection(order(sample(1:n_var, nb_pts)), 
                                parents[[(2*x-1)]],
-                               parents[[(2*x)]], n_var, mu))
+                               parents[[(2*x)]], 5, n_var, mu))
     
     chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
                                                       x$child_1, dataset, reg_method))
     chld_2 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      x$child2, dataset, reg_method))
+                                                      x$child_2, dataset, reg_method))
     children <- c(chld_1, chld_2)
-  }
-  
-  if(gene_selection == "random"){
-    chld_idx <- lapply(1:pop_size, function(x) 
-      random_chromosomes_swap(sample(1:n_var, k), parents[[(2*x-1)]],
-                              parents[[(2*x)]],n_var, mu))
     
-    chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      x$child_1, dataset, reg_method))
-    chld_2 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      x$child2, dataset, reg_method))
-    children <- c(chld_1, chld_2)
-  }
-  
   ## here we only keep the (new gener pop size - nb_parents_kept) children 
   ## with the best fitness
   nb_child_kept = generation_gap * pop_size
   child_kept <- get_k_fittest_ind(children, objective, k = nb_child_kept)
   
   return(c(k_prev_gen, child_kept))
-  
 }
 
 
@@ -512,8 +466,8 @@ mutation <- function(offspring, mu){
 
 select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n, objective = "AIC",
                    interaction = F, most_sig = F, selection = "prop", nb_groups = 4, generation_gap = 0.25,
-                   gene_selection = "crossover", nb_pts = 1, mu = 0.3){
-  n <- ncol(dataset)-1
+                   gene_selection = NULL, nb_pts = 1, mu = 0.3, err = 1e-6){
+  n <- ncol(dataset) - 1
   first_ind <- first_generation(y, dataset, pop_size, interaction, 
                                 objective_function = objective, most_sig, reg_method)
   ind <- first_ind
@@ -523,8 +477,14 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
   } else {
     pop_sizes <- ceiling(seq(pop_size, n, by = - n/n_iter))
   }
- 
+  objectives <- unlist(get_objective_for_population(first_ind, objective))
+  oldoptim <- max(objectives)
+  iter <- 0
+  if(is.null(gene_selection)) {
+    gene_selection <- gene_selection
+  }
   for (i in 1:n_iter){
+    iter <- iter + 1
     if(if_changesize) {
       popsize <- pop_sizes[i]
     }
@@ -533,12 +493,15 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
                                generation_gap,
                                selection, nb_groups,
                                gene_selection, nb_pts, reg_method, mu)
+   objectives <- unlist(get_objective_for_population(ind, objective))
+   newoptim <- max(objectives)
+   if(abs(newoptim-oldoptim) < err) {
+      break;
+   }
   }
-  objectives <- get_objective_for_population(ind, objective)
-  objectives <- unlist(objectives)
-  
-  return(ind[which.max(objectives)])
-  
+  iter <- as.list(iter)
+  names(iter) <- "iterations"
+  return(c(ind[which.max(objectives)], iter))
 }
 
 
