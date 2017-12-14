@@ -97,7 +97,7 @@ select <- function(y, dataset, reg_method = NULL, n_iter = 200, pop_size = 2 * n
                               reg_method, mu)
     objectives <- unlist(get_objective_for_population(ind, objective))
     newoptim <- max(objectives)
-    if(abs(newoptim - oldoptim) < err) {
+    if(abs(newoptim - oldoptim) < err & parent_selection != "random" & i > n_iter/4) {
       break;
     }
   }
