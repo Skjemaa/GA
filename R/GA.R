@@ -9,9 +9,10 @@
 #' @examples 
 regression <- function(y,names, indices, dataset){
   form <- noquote(paste(names[indices], collapse = "+"))
-  # print(form)
+  print(indices)
+  print(form)
   form <- paste(y, form, sep = " ~ ")
-  # print(noquote(form))
+  print(noquote(form))
   types <- sapply(dataset, class)
   nb_double <- sum(types == "numeric") + sum(types == "integer")
   if(nb_double == ncol(dataset)){
@@ -35,18 +36,20 @@ random_selection_regression <- function(y, names, dataset, n){
   #' \item{variable}{the name of the covariates selected in the regression}
   #' \item{indices}{their indices in the original vector names}
   #' \item{linear_model}{the 'lm' object resulting from the regression}
-  indices <- sample(length(names), n)
+  indices <- sample(1:length(names), n)
   lin_model <- regression(y, names, indices, dataset)
   return(list("variables" = names[indices], "indices" = indices, 
               "linear_model" = lin_model))
 }
 
 #' Get the value of the objective function
-#' @param lin.model lm object
+#' @param individuals the population
 #' @param objective name of the objective function inside quotes
 #' @return The value of the objective function of the linear model
-get_objective_for_population <- function(lin.model, objective = "AIC"){
-  return(as.name(objective)(lin.model))
+get_objective_for_population <- function(individuals, objective = "AIC"){
+  obj <- lapply(individuals, 
+                function(x) eval(as.name(objective))(x$linear_model))
+  return(obj)
 }
 
 @TODO
@@ -85,7 +88,7 @@ get_fittest_ind <- function(individuals, objective = "AIC", fitness = F){
   } 
   else{
     idx <- which.max(unlist(lapply(individuals, 
-                                   function(x) as.name(objective)(x$linear_model))))
+                                   function(x) eval(as.name(objective))(x$linear_model))))
     return(individuals[[idx]])
   }
 }
@@ -106,7 +109,7 @@ get_k_fittest_ind <- function(individuals, objective = "AIC", k=1,
   } 
   else{
     idx <- order(unlist(lapply(individuals, 
-                               function(x) as.name(objective)(x$linear_model))),
+                               function(x) eval(as.name(objective))(x$linear_model))),
                  decreasing = T)
     return(individuals[idx[1:k]])
   }
@@ -122,7 +125,7 @@ get_prob_individuals <- function(individuals, objective = "AIC"){
   #' @param objective objective function
   #' @return a list of probabilities
   objectives <- unlist(lapply(individuals, 
-                              function(x) as.name(objective)(x$linear_model)))
+                              function(x) eval(as.name(objective))(x$linear_model)))
   probs <- objectives / sum(objectives)
   return(probs)
 }
@@ -242,26 +245,30 @@ get_indices_crossover_gm <- function(points, p1, p2, n_var){
   #' @return a list containing the vectors of indices taken into account into
   #' each of the 2 children given by the crossover operator
   crossing_points <- c(1, points)
-  ending_points <- c(points, length(n_var))
+  ending_points <- c(points, n_var)
   
-  from_p1_idx <- unlist(lapply(seq(1, length(crossing_points)-1, by = 2), 
-                               function(i) crossing_points[i]:crossing_points[i+1]))
-  from_p2_idx <- seq(1, n_var)[-child1_idx]
+  from_p1_idx <- unlist(lapply(seq(1, length(crossing_points), by = 2), 
+                               function(i) crossing_points[i]:ending_points[i]))
+  from_p2_idx <- seq(1, n_var)[-from_p1_idx]
+  print(from_p1_idx)
+  print(from_p2_idx)
   
   one_hot_p1 <- one_hot(p1, n_var)
+  print(one_hot_p1)
   one_hot_p2 <- one_hot(p2, n_var)
+  print(one_hot_p2)
   
   child1_var <- rep(0, n_var)
   child2_var <- rep(0, n_var)
   
-  cild1_var[from_p1_idx] <- one_hot_p1[from_p1_idx]
-  cild1_var[from_p2_idx] <- one_hot_p2[from_p2_idx]
+  child1_var[from_p1_idx] <- one_hot_p1[from_p1_idx]
+  child1_var[from_p2_idx] <- one_hot_p2[from_p2_idx]
   
-  cild2_var[from_p1_idx] <- one_hot_p2[from_p1_idx]
-  cild2_var[from_p2_idx] <- one_hot_p1[from_p2_idx]
+  child2_var[from_p1_idx] <- one_hot_p2[from_p1_idx]
+  child2_var[from_p2_idx] <- one_hot_p1[from_p2_idx]
   
-  child1_idx <- which(child1_var==1)
-  child2_idx <- which(chidl2_idx)
+  child1_idx <- which(child1_var == 1)
+  child2_idx <- which(child2_var == 1)
   
   return(list("child_1" = child1_idx, "child2" = child2_idx))
 }
@@ -361,7 +368,6 @@ first_generation <- function(y, dataset, population_size, interaction = F,
   #' \item{indices}{the indices of these covariates in the data frame}
   #' \item{linear_model}{the linear model with these covariates}
   n <- ncol(dataset)-1
-  
   names <- names(dataset)[names(dataset)!=y]
   if(interaction == T){
     ## add the interaction terms
@@ -370,7 +376,7 @@ first_generation <- function(y, dataset, population_size, interaction = F,
     ## add the use of get_most_significant_var
   }
   
-  n_var <- sample(1:n, population_size, replace = T)
+  n_var <- sample(1:13, population_size, replace = T)
   individuals <- lapply(n_var, function(x) random_selection_regression(y, names, dataset, x))
   return(individuals)
 }
@@ -443,14 +449,15 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
   ## gene selection
   
   if(gene_selection=="crossover"){
-    chld_idx <- lapply(range(pop_size_last), function(x) 
-      get_indices_crossover_gm(sample(1:n_var, k), parents[[(2*x-1)]],
+    chld_idx <- lapply(1:(pop_size_last/2), function(x) 
+      get_indices_crossover_gm(sample(1:n_var, nb_pts), parents[[(2*x-1)]],
                                parents[[(2*x)]],n_var))
+    print(chld_idx)
     
     chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      chld_idx[[x]]$child_1))
+                                                      x$child_1, dataset))
     chld_2 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      chld_idx[[x]]$child_2))
+                                                      x$child2, dataset))
     children <- c(chld_1, chld_2)
   }
   
@@ -460,15 +467,17 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
                               parents[[(2*x)]],n_var))
     
     chld_1 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      chld_idx[[x]]$child_1))
+                                                      x$child_1, dataset))
     chld_2 <- lapply(chld_idx, function(x) regression(y, names, 
-                                                      chld_idx[[x]]$child_2))
+                                                      x$child2, dataset))
     children <- c(chld_1, chld_2)
   }
   
   ## here we only keep the (new gener pop size - nb_parents_kept) children 
   ## with the best fitness
   nb_child_kept = pop_size - permutation_gap
+  print(nb_child_kept)
+  print(children)
   child_kept <- get_k_fittest_ind(children, objective, k = nb_child_kept)
   
   return(c(k_prev_gen, child_kept))
@@ -504,17 +513,23 @@ select <- function(y, dataset, n_iter = 200, pop_size = 20, objective = "AIC",
   
   n <- ncol(dataset)-1
   
-  names <- names(dataset)[names(dataset)!=y]
-  
-  pop_sizes <- from(pop_size, 2, by = -2)
+  #names <- names(dataset)[names(dataset)!=y]
   
   first_ind <- first_generation(y, dataset, pop_size, interaction, 
                                 objective_function = objective, most_sig, 
                                 normalization)
   
   ind <- first_ind
+  
   ## when to change the population size
+  pop_sizes <- seq(pop_size, 2, by = -2)
   chge_pop <- n_iter/pop_size
+  
+  ##changing the permutation gap
+  permutation_gap <- rep(permutation, length(pop_sizes))
+  for (i in 1:length(pop_sizes)){
+    permutation_gap[i] <- min(floor(pop_sizes[i]/2), max(permutation-i, 0))
+  }
   
   ## generations for uniform decay of population size
   for (i in 1:n_iter){
