@@ -373,7 +373,7 @@ first_generation <- function(y, dataset, population_size, interaction = F,
     ## add the use of get_most_significant_var
   }
   
-  n_var <- sample(1:13, population_size, replace = T)
+  n_var <- sample(1:n, population_size, replace = T)
   individuals <- lapply(n_var, function(x) random_selection_regression(y, names, dataset, x))
   return(individuals)
 }
@@ -408,6 +408,7 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
   #' \item{linear_model}{the linear model for these covariates}
   n_var <- ncol(dataset)-1
   pop_size_last <- length(individuals)
+  names <- names(dataset)[which(names(dataset)!=y)]
   
   k_prev_gen <- get_k_fittest_ind(individuals, objective,
                                   k = permutation_gap)
@@ -473,8 +474,6 @@ iterate_generations <- function(y, dataset, individuals, objective = "AIC",
   ## here we only keep the (new gener pop size - nb_parents_kept) children 
   ## with the best fitness
   nb_child_kept = pop_size - permutation_gap
-  print(permutation_gap)
-  print(nb_child_kept)
   child_kept <- get_k_fittest_ind(children, objective, k = nb_child_kept)
   
   return(c(k_prev_gen, child_kept))
@@ -510,8 +509,6 @@ select <- function(y, dataset, n_iter = 200, pop_size = 20, objective = "AIC",
   
   n <- ncol(dataset)-1
   
-  #names <- names(dataset)[names(dataset)!=y]
-  
   first_ind <- first_generation(y, dataset, pop_size, interaction, 
                                 objective_function = objective, most_sig, 
                                 normalization)
@@ -538,7 +535,6 @@ select <- function(y, dataset, n_iter = 200, pop_size = 20, objective = "AIC",
                                selection, nb_groups,
                                gene_selection, nb_pts)
   }
-  print(ind)
   objectives <- get_objective_for_population(ind, objective)
   objectives <- unlist(objectives)
   
