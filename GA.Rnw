@@ -8,6 +8,7 @@
 \usepackage{mathabx}
 \usepackage{amssymb}
 \usepackage{enumitem}
+\usepackage{graphicx}
 
 
 \title{STAT 243 : Project}
@@ -92,10 +93,17 @@ The optional parameters are detailed below.
 \item mu (numeric): The mutation rate
 \end{enumerate}
 
+\section*{Package Structure}
+The overall package structure is pictured below. The functions with stars indicate they can be modified by user input via the parameters of the select function.
+\begin{figure}[h]
+\centering
+\includegraphics[height = .5\textheight, width = \textwidth]{Work}
+\end{figure}
+
 \section*{Member Roles}
 Skander was the primary coder and bug fixer. He wrote a large proportion of the code and desgined most of the algorithms.
 Rivers wrote much of the documentation and served as package guru making sure the package had all the necessary components.
-Yachuan was a secondary coder and wrote many of the tests.
+Yachuan was a secondary coder and wrote most of the tests.
 Yu was a secondary coder, tester, documenter, and organizer of the group.
 
 \end{document}
