@@ -92,8 +92,9 @@ one_hot <- function(p, n_var){
 get_prob_individuals <- function(individuals, objective = "AIC"){
   
   objectives <- unlist(lapply(individuals, 
-                              function(x) - eval(as.name(objective))(x$linear_model)))                        
-  probs <- objectives / sum(objectives)
+                              function(x) - eval(as.name(objective))(x$linear_model))) 
+  fitness_rank <- rank(objectives)
+  probs <- fitness_rank/sum(fitness_rank)                            
   return(probs)
 }
                               
