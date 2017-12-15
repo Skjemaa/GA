@@ -100,6 +100,33 @@ The overall package structure is pictured below. The functions with stars indica
 \includegraphics[height = .5\textheight, width = \textwidth]{Work}
 \end{figure}
 
+\section{Example}
+Below are two real examples for fitting. 
+First example, using an R dataset "Boston", with the dependent variable being "crim".
+<<r>>=
+library('GA')
+library(MASS)
+Boston_model1 <- select("crim", Boston)
+Boston_model2 <- select("crim", Boston, reg_method = "lm")
+Boston_model3 <- select("crim", Boston, interaction = T)
+Boston_model4 <- select("crim", Boston, generation_gap = 0.5)
+Boston_model5 <- select("crim", Boston, nb_pts = 3)
+Boston_model6 <- select("crim", Boston, reg_method = "lm",interaction = T, nb_pts = 3)
+
+@
+First example, using an R dataset "mtcars", with the dependent variable being "mpg".
+<<r>>=
+library('GA')
+library(datasets)
+mtcars6 <- select("mpg", mtcars)
+mtcars2 <- select("mpg", mtcars, reg_method = "glm")
+mtcars3 <- select("mpg", mtcars, interaction = T)
+mtcars4 <- select("mpg", mtcars, mu = 0.4)
+mtcars5 <- select("mpg", mtcars, nb_pts = 2)
+mtcars6 <- select("mpg", mtcars, reg_method = "glm", interaction = T, nb_pts = 2, mu = 0.4)
+
+
+@
 \section*{Member Roles}
 Skander was the primary coder and bug fixer. He wrote a large proportion of the code and desgined most of the algorithms.
 Rivers wrote much of the documentation and served as package guru making sure the package had all the necessary components.
